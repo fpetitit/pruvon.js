@@ -12,6 +12,9 @@ For a full walkthrough with visuals, see [the tutorial](docs/tutorial.html).
 npm install pruvon
 ```
 
+See [pruvon-example](https://github.com/fpetitit/pruvon-example) for a minimal standard Node.js
+project using pruvon as a regular npm dependency.
+
 ## Writing specs
 
 A spec describes expected behavior in tables: each row is one call into your code, with all but the
