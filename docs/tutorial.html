@@ -473,7 +473,7 @@
   <h3>The real implementation</h3>
   <div class="code-block">
     <span class="code-label">JavaScript</span>
-    <pre><code>import { splitName } from '../../src/name-splitter.js';
+    <pre><code>import { splitName } from './name-splitter.js';
 
 export function firstName(args) {
   return splitName(args[0]).firstName;
@@ -512,10 +512,10 @@ export function lastName(args) {
 <section id="running">
   <h2>Running it</h2>
   <p>The full example above (both the HTML and the Markdown version) lives in
-    <code>docs/examples/</code>. Run it with the CLI:</p>
-  <div class="terminal"><span class="prompt">$</span> npx pruvon --cwd docs/examples
-✔ name-splitter.pruvon.md: 4 passed, 0 failed
+    <code>examples/</code>. Run it with the CLI:</p>
+  <div class="terminal"><span class="prompt">$</span> npx pruvon --cwd examples --pattern 'name-splitter.pruvon.{html,md}'
 ✔ name-splitter.pruvon.html: 4 passed, 0 failed
+✔ name-splitter.pruvon.md: 4 passed, 0 failed
 
 8 passed, 0 failed</div>
   <div class="callout">
