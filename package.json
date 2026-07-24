@@ -1,32 +1,33 @@
 {
+  "name": "pruvon",
+  "version": "0.1.0",
+  "description": "A simple behavior driven development test tool",
+  "type": "module",
   "scripts": {
-    "test": "node proof.js"
+    "test": "node --test test/engine.test.js"
   },
   "dependencies": {
-    "cheerio": "^0.20.0",
-    "glob": "^7.0.5"
-  },
-  "name": "proof.io",
-  "version": "0.0.5",
-  "description": "A simple behavior driven development test tool",
-  "main": "proof.js",
-  "directories": {
-    "test": "test"
+    "cheerio": "^1.2.0",
+    "glob": "^13.0.6"
   },
   "devDependencies": {},
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=18.0.0"
+  },
+  "directories": {
+    "test": "test"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:fpetitit/proof.io.git"
+    "url": "git+ssh://git@github.com:fpetitit/pruvon.js.git"
   },
   "keywords": [
     "test",
     "javascript",
-    "bdd"
+    "bdd",
+    "concordion"
   ],
   "author": "Francois Petitit",
   "license": "MIT",
-  "homepage": "https://github.com/fpetitit/proof.io"
+  "homepage": "https://github.com/fpetitit/pruvon.js"
 }
