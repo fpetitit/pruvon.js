@@ -1,0 +1,13 @@
+{
+  "name": "pruvon-example",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A minimal standard Node.js project using pruvon, installed from npm.",
+  "type": "module",
+  "scripts": {
+    "test": "pruvon"
+  },
+  "devDependencies": {
+    "pruvon": "^0.1.0"
+  }
+}

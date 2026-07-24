@@ -1,0 +1,23 @@
+{
+  "name": "pruvon-nestjs-demo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "A NestJS project using pruvon, installed from npm, to spec-test a service resolved through Nest's dependency injection.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "test": "npm run build && pruvon"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.28",
+    "@nestjs/core": "^11.1.28",
+    "@nestjs/platform-express": "^11.1.28",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "pruvon": "^0.1.0",
+    "typescript": "^5.6.0"
+  }
+}

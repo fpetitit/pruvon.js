@@ -46,3 +46,10 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
 - **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`) and the
   deliberately pathological specs/fixtures under `test/fixtures/` (pass/fail/async/throwing/missing-fixture)
   they run against — these are distinct from the `examples/` demos.
+- **`demos/`** holds standalone consumer projects, each with its own `package.json`/`package-lock.json`/
+  `node_modules` (gitignored) that install `pruvon` for real from the public npm registry — unlike
+  `examples/`, which imports the engine's local source directly. `demos/standard-project/` is plain
+  ESM Node.js; `demos/nestjs/` is a CommonJS NestJS app whose fixture resolves a service via
+  `NestFactory.createApplicationContext` (Nest's DI), demonstrating pruvon works regardless of the
+  consuming project's module type. These exist to smoke-test real installs, not to be run as part of
+  this repo's own `npm test`.
