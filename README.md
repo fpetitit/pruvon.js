@@ -70,8 +70,8 @@ Running a spec writes a `*.pruvon.result.html` report next to it, with each resu
 green (pass) or red (fail, with an `expected X but was Y` message). These generated reports are not
 meant to be committed (see `.gitignore`).
 
-See `examples/basket.pruvon.html`, `examples/basket.pruvon.md` and
-`examples/basket.pruvon.fixture.js` for a complete worked example.
+See `examples/basket/basket.pruvon.html`, `examples/basket/basket.pruvon.md` and
+`examples/basket/basket.pruvon.fixture.js` for a complete worked example.
 
 ## Running specs
 

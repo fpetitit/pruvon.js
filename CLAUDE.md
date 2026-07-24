@@ -31,16 +31,18 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
 - **`src/cli.js`** / **`bin/pruvon.js`** — argv parsing (`--cwd`, `--pattern`, `--help`), console
   summary, and the exit-code contract described above.
 - **Fixture/spec pairing convention**: `<name>.pruvon.html` and/or `<name>.pruvon.md` share the same
-  fixture `<name>.pruvon.fixture.js` (see `examples/basket.pruvon.*` for a spec pairing both formats to
-  one fixture). Fixtures typically adapt string cell values into typed args and call into a "domain"
-  module — see `examples/basket.js` (`sum`, `sub`) wrapped by `examples/basket.pruvon.fixture.js`.
+  fixture `<name>.pruvon.fixture.js` (see `examples/basket/basket.pruvon.*` for a spec pairing both
+  formats to one fixture). Fixtures typically adapt string cell values into typed args and call into a
+  "domain" module — see `examples/basket/basket.js` (`sum`, `sub`) wrapped by
+  `examples/basket/basket.pruvon.fixture.js`.
 
 ## Directory layout
 
 - **`src/`** holds *only* the engine — no example/demo code lives here.
-- **`examples/`** holds the illustrative, user-facing demos (specs + fixtures + the "domain" modules
-  they exercise): `basket.*` and `name-splitter.*`, plus the shared `pruvon.css`. `name-splitter.*` is
-  the running example embedded in `docs/tutorial.html`.
+- **`examples/`** holds the illustrative, user-facing demos, one subdirectory per example
+  (`examples/basket/`, `examples/name-splitter/`), each with its domain module + specs + fixture
+  co-located, plus a `pruvon.css` shared by both at the top of `examples/`. `name-splitter/` is the
+  running example embedded in `docs/tutorial.html`.
 - **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`) and the
   deliberately pathological specs/fixtures under `test/fixtures/` (pass/fail/async/throwing/missing-fixture)
   they run against — these are distinct from the `examples/` demos.
