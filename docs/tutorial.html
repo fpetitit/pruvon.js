@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pruvon — Getting Started Tutorial</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --bg-alt: #f4f5f7;
+    --text: #1c2024;
+    --text-muted: #5a6270;
+    --border: #d8dce2;
+    --accent: #3b5bdb;
+    --accent-soft: #e8ecfd;
+    --green: #2f9e44;
+    --green-bg: #ebfbee;
+    --red: #c92a2a;
+    --red-bg: #fff0f0;
+    --code-bg: #f4f5f7;
+    --terminal-bg: #1a1d23;
+    --terminal-text: #d7e0ea;
+    --terminal-prompt: #63e6be;
+    --napkin-bg: #fff8e1;
+    --napkin-border: #d9b64e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a;
+      --bg-alt: #1b1e24;
+      --text: #e7e9ec;
+      --text-muted: #9aa2ad;
+      --border: #2c313a;
+      --accent: #7f9cff;
+      --accent-soft: #23294a;
+      --green: #5fd77e;
+      --green-bg: #123420;
+      --red: #ff8787;
+      --red-bg: #3a1a1a;
+      --code-bg: #1e2128;
+      --terminal-bg: #0c0e12;
+      --terminal-text: #d7e0ea;
+      --terminal-prompt: #63e6be;
+      --napkin-bg: #2a2410;
+      --napkin-border: #7a672c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161a; --bg-alt: #1b1e24; --text: #e7e9ec; --text-muted: #9aa2ad;
+    --border: #2c313a; --accent: #7f9cff; --accent-soft: #23294a;
+    --green: #5fd77e; --green-bg: #123420; --red: #ff8787; --red-bg: #3a1a1a;
+    --code-bg: #1e2128; --terminal-bg: #0c0e12; --napkin-bg: #2a2410; --napkin-border: #7a672c;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff; --bg-alt: #f4f5f7; --text: #1c2024; --text-muted: #5a6270;
+    --border: #d8dce2; --accent: #3b5bdb; --accent-soft: #e8ecfd;
+    --green: #2f9e44; --green-bg: #ebfbee; --red: #c92a2a; --red-bg: #fff0f0;
+    --code-bg: #f4f5f7; --terminal-bg: #1a1d23; --napkin-bg: #fff8e1; --napkin-border: #d9b64e;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  a { color: var(--accent); }
+
+  header.hero {
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+    background: linear-gradient(180deg, var(--accent-soft), transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  header.hero h1 { margin: 0 0 0.25rem; font-size: 2.2rem; }
+  header.hero p.tagline { margin: 0 0 1rem; color: var(--text-muted); font-size: 1.1rem; }
+  .badges { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 0.5rem; }
+  .badges img { height: 20px; }
+  .hero-links a {
+    display: inline-block;
+    margin: 0 0.4rem;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+  }
+  .hero-links a:hover { background: var(--accent-soft); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static !important; order: -1; }
+  }
+
+  nav.toc {
+    position: sticky;
+    top: 1.5rem;
+    align-self: start;
+    font-size: 0.92rem;
+  }
+  nav.toc h2 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem;
+  }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; }
+  nav.toc li { margin: 0.15rem 0; }
+  nav.toc a {
+    display: block;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text);
+  }
+  nav.toc a:hover { background: var(--bg-alt); }
+  nav.toc .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    margin-right: 0.4rem;
+  }
+
+  main section { margin-bottom: 3rem; }
+  main h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+  main h3 { font-size: 1.15rem; }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  .step-badge {
+    flex: none;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .step-header h2 { border: none; margin: 0; padding: 0; }
+
+  /* Architecture diagram */
+  .diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 1.5rem;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .diagram .box {
+    border: 1px solid var(--border);
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    min-width: 140px;
+  }
+  .diagram .box strong { display: block; margin-bottom: 0.2rem; }
+  .diagram .arrow { font-size: 1.4rem; color: var(--text-muted); }
+  .diagram .plus { font-size: 1.2rem; color: var(--text-muted); }
+  .diagram .stack { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  /* Napkin sketch callout */
+  .napkin {
+    border: 2px dashed var(--napkin-border);
+    background: var(--napkin-bg);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+    transform: rotate(-0.4deg);
+  }
+  .napkin p { margin: 0.4rem 0; }
+
+  /* Callout / admonition boxes */
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 0.8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .callout.tip { border-color: var(--green); background: var(--green-bg); }
+  .callout .callout-title { font-weight: 700; margin-bottom: 0.2rem; }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    overflow-x: auto;
+    font-size: 0.85rem;
+  }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  .code-block { margin: 0.75rem 0; }
+  .code-block .code-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 0.15rem 0.6rem;
+  }
+  .code-block pre { margin-top: 0; border-radius: 0 8px 8px 8px; }
+  mark.hl {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 4px;
+    padding: 0 0.15rem;
+  }
+
+  /* Two-column comparison */
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
+
+  /* Rendered/live table previews */
+  .preview {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  .preview .preview-bar {
+    background: var(--bg-alt);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .preview .preview-body { padding: 1rem 1.2rem; background: var(--bg); }
+  .preview table {
+    border-collapse: collapse;
+    margin: 0.5rem 0 1rem;
+    font-size: 0.9rem;
+  }
+  .preview th, .preview td {
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.7rem;
+    text-align: left;
+  }
+  .preview h1, .preview h2 { font-size: 1rem; margin: 0.6rem 0 0.2rem; border: none; padding: 0; }
+
+  /* Terminal block */
+  .terminal {
+    background: var(--terminal-bg);
+    color: var(--terminal-text);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  .terminal .prompt { color: var(--terminal-prompt); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    text-align: center;
+    padding: 2rem 1rem 3rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Pruvon</h1>
+  <p class="tagline">Turn a plain-language spec into an executable, visual test report — for Node.js.</p>
+  <div class="badges">
+    <img src="https://github.com/fpetitit/pruvon.js/actions/workflows/ci.yml/badge.svg" alt="CI status">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license">
+  </div>
+  <div class="hero-links">
+    <a href="../README.md">README</a>
+    <a href="https://github.com/fpetitit/pruvon.js">GitHub</a>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav class="toc">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#discussing"><span class="step-num">1</span>Discussing</a></li>
+    <li><a href="#documenting"><span class="step-num">2</span>Documenting</a></li>
+    <li><a href="#instrumenting"><span class="step-num">3</span>Instrumenting</a></li>
+    <li><a href="#coding"><span class="step-num">4</span>Coding</a></li>
+    <li><a href="#running">Running it</a></li>
+    <li><a href="#advanced">Advanced</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="introduction">
+  <h2>Introduction</h2>
+  <p>
+    Pruvon is inspired by <a href="https://concordion.org">Concordion</a>: you write a
+    <strong>spec</strong> describing expected behavior as plain HTML or Markdown, pair it with a
+    small <strong>fixture</strong> module that wires each example to your real code, and Pruvon
+    produces a <strong>result</strong> — the same document, with every example colored green or red.
+  </p>
+  <div class="diagram">
+    <div class="stack">
+      <div class="box"><strong>Spec</strong>.pruvon.html / .pruvon.md</div>
+      <div class="plus" style="text-align:center">+</div>
+      <div class="box"><strong>Fixture</strong>.pruvon.fixture.js</div>
+    </div>
+    <div class="arrow">&rarr;</div>
+    <div class="box"><strong>pruvon</strong> engine</div>
+    <div class="arrow">&rarr;</div>
+    <div class="box"><strong>Result</strong>.pruvon.result.html</div>
+  </div>
+  <p>
+    This tutorial walks through that whole loop using one example: splitting a full name into a
+    first and last name — the same example Concordion itself uses in its getting-started guide.
+  </p>
+</section>
+
+<section id="discussing">
+  <div class="step-header"><span class="step-badge">1</span><h2>Discussing</h2></div>
+  <p>Before writing anything executable, agree on the behavior in plain language with whoever cares about it — a teammate, a stakeholder, your own rubber duck.</p>
+  <div class="napkin">
+    <p>"Jane Smith" &rarr; first name "Jane", last name "Smith"</p>
+    <p>"Ada Lovelace" &rarr; first name "Ada", last name "Lovelace"</p>
+    <p>(what about middle names? — out of scope for now)</p>
+  </div>
+</section>
+
+<section id="documenting">
+  <div class="step-header"><span class="step-badge">2</span><h2>Documenting</h2></div>
+  <p>
+    Write the agreed examples down as plain tables — no execution yet, just the shared
+    understanding, saved as <code>name-splitter.pruvon.html</code>:
+  </p>
+  <div class="code-block">
+    <span class="code-label">HTML</span>
+    <pre><code>&lt;h2&gt;First Name&lt;/h2&gt;
+&lt;table&gt;
+    &lt;tr&gt;&lt;th&gt;Full Name&lt;/th&gt;&lt;th&gt;First Name&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Jane Smith&lt;/td&gt;&lt;td&gt;Jane&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+  </div>
+  <p>Rendered in a browser, it's just a plain, uncolored table — a readable document on its own, before any code is involved:</p>
+  <div class="preview">
+    <div class="preview-bar">preview — name-splitter.pruvon.html (not yet instrumented)</div>
+    <div class="preview-body">
+      <h2>First Name</h2>
+      <table>
+        <tr><th>Full Name</th><th>First Name</th></tr>
+        <tr><td>Jane Smith</td><td>Jane</td></tr>
+        <tr><td>Ada Lovelace</td><td>Ada</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="instrumenting">
+  <div class="step-header"><span class="step-badge">3</span><h2>Instrumenting</h2></div>
+  <p>
+    Add a <code>data-execute</code> attribute naming the fixture function to call for each row.
+    Pruvon supports the same instrumented spec in HTML <em>or</em> Markdown — pick whichever your
+    team is more comfortable authoring:
+  </p>
+  <div class="compare">
+    <div class="code-block">
+      <span class="code-label">HTML — name-splitter.pruvon.html</span>
+      <pre><code>&lt;table <mark class="hl">data-execute="firstName"</mark>&gt;
+    &lt;tr&gt;&lt;th&gt;Full Name&lt;/th&gt;&lt;th&gt;First Name&lt;/th&gt;&lt;/tr&gt;
+    &lt;tr&gt;&lt;td&gt;Jane Smith&lt;/td&gt;&lt;td&gt;Jane&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+    </div>
+    <div class="code-block">
+      <span class="code-label">Markdown — name-splitter.pruvon.md</span>
+      <pre><code>```<mark class="hl">pruvon:firstName</mark>
+| Full Name | First Name |
+|---|---|
+| Jane Smith | Jane |
+```</code></pre>
+    </div>
+  </div>
+  <div class="callout">
+    <div class="callout-title">How the Markdown fence works</div>
+    A fenced code block tagged <code>pruvon:&lt;fnName&gt;</code> has its table content rendered and
+    tagged <code>data-execute="&lt;fnName&gt;"</code>; everything else in the file renders as normal
+    Markdown. See <code>src/render-markdown.js</code>.
+  </div>
+</section>
+
+<section id="coding">
+  <div class="step-header"><span class="step-badge">4</span><h2>Coding</h2></div>
+  <p>Now write the fixture — <code>name-splitter.pruvon.fixture.js</code> — that connects each
+    <code>data-execute</code> name to real code. Watch the report change as the implementation goes
+    from nothing, to wrong, to right. Every result below is a real, unedited report generated by
+    running <code>pruvon</code> against this exact spec.</p>
+
+  <h3>Nothing implemented yet</h3>
+  <div class="code-block">
+    <span class="code-label">JavaScript</span>
+    <pre><code>// name-splitter.pruvon.fixture.js is empty</code></pre>
+  </div>
+  <div class="preview">
+    <div class="preview-bar">result — 0 passed, 4 failed</div>
+    <div class="preview-body">
+      <h2>First Name</h2>
+      <table>
+        <tr><th>Full Name</th><th>First Name</th></tr>
+        <tr><td>Jane Smith</td><td style="background-color: red;">error: fixture function "firstName" not found</td></tr>
+        <tr><td>Ada Lovelace</td><td style="background-color: red;">error: fixture function "firstName" not found</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>A stub that compiles but isn't right yet</h3>
+  <div class="code-block">
+    <span class="code-label">JavaScript</span>
+    <pre><code>export function firstName(args) {
+  return 'TODO';
+}</code></pre>
+  </div>
+  <div class="preview">
+    <div class="preview-bar">result — 0 passed, 4 failed</div>
+    <div class="preview-body">
+      <h2>First Name</h2>
+      <table>
+        <tr><th>Full Name</th><th>First Name</th></tr>
+        <tr><td>Jane Smith</td><td style="background-color: red;">expected Jane but was TODO</td></tr>
+        <tr><td>Ada Lovelace</td><td style="background-color: red;">expected Ada but was TODO</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>The real implementation</h3>
+  <div class="code-block">
+    <span class="code-label">JavaScript</span>
+    <pre><code>import { splitName } from '../../src/name-splitter.js';
+
+export function firstName(args) {
+  return splitName(args[0]).firstName;
+}
+
+export function lastName(args) {
+  return splitName(args[0]).lastName;
+}</code></pre>
+  </div>
+  <div class="preview">
+    <div class="preview-bar">result — 4 passed, 0 failed</div>
+    <div class="preview-body">
+      <h2>First Name</h2>
+      <table>
+        <tr><th>Full Name</th><th>First Name</th></tr>
+        <tr><td>Jane Smith</td><td style="background-color: green;">Jane</td></tr>
+        <tr><td>Ada Lovelace</td><td style="background-color: green;">Ada</td></tr>
+      </table>
+      <h2>Last Name</h2>
+      <table>
+        <tr><th>Full Name</th><th>Last Name</th></tr>
+        <tr><td>Jane Smith</td><td style="background-color: green;">Smith</td></tr>
+        <tr><td>Ada Lovelace</td><td style="background-color: green;">Lovelace</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="callout tip">
+    <div class="callout-title">Why two tables instead of one?</div>
+    Concordion can chain several outputs (<code>firstName</code> <em>and</em>
+    <code>lastName</code>) off a single row. Pruvon's row model is simpler — one expected value per
+    row — so the same idea is expressed as two small tables, one per fixture function. See
+    <code>src/run-table.js</code>.
+  </div>
+</section>
+
+<section id="running">
+  <h2>Running it</h2>
+  <p>The full example above (both the HTML and the Markdown version) lives in
+    <code>docs/examples/</code>. Run it with the CLI:</p>
+  <div class="terminal"><span class="prompt">$</span> npx pruvon --cwd docs/examples
+✔ name-splitter.pruvon.md: 4 passed, 0 failed
+✔ name-splitter.pruvon.html: 4 passed, 0 failed
+
+8 passed, 0 failed</div>
+  <div class="callout">
+    <div class="callout-title">Exit code contract</div>
+    <code>0</code> — every row across every discovered spec passed (or no specs were found).
+    <code>1</code> — any row failed, any fixture function threw, or a spec had no paired fixture —
+    making <code>pruvon</code> usable directly as a CI gate (see <code>.github/workflows/ci.yml</code>
+    in this repo).
+  </div>
+</section>
+
+<section id="advanced">
+  <h2>Advanced</h2>
+  <div class="callout tip">
+    <div class="callout-title">Async fixtures</div>
+    Fixture functions may be <code>async</code> — Pruvon <code>await</code>s every call, so a
+    fixture backed by a database or an HTTP call works the same way.
+  </div>
+  <div class="callout tip">
+    <div class="callout-title">One bad row doesn't ruin the run</div>
+    Each row runs in its own try/catch. A throwing or missing fixture function only fails that row —
+    every other row (in the same table, and in every other spec) still runs and reports normally.
+  </div>
+  <p>See <code>README.md</code> for install instructions and the full CLI reference.</p>
+</section>
+
+</main>
+</div>
+
+<footer>
+  Pruvon is inspired by <a href="https://concordion.org">Concordion</a>, licensed MIT.<br>
+  <a href="../README.md">README</a> · <a href="https://github.com/fpetitit/pruvon.js">GitHub</a>
+</footer>
+
+</body>
+</html>

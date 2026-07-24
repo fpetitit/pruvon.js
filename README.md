@@ -4,7 +4,7 @@ Pruvon (formerly proof.io) is a tool to help you test your code by generating vi
 understand, both for developers and for non technical persons.
 It is especially inspired by http://concordion.org, a great bdd testing tool for Java.
 
-*Note: the repository URL below is not yet finalized — update once the npm package itself is (re)published under the `pruvon` name.*
+For a full walkthrough with visuals, see [the tutorial](docs/tutorial.html).
 
 ## Installation
 
