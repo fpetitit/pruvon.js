@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "A simple behavior driven development test tool",
   "type": "module",
+  "main": "src/runner.js",
+  "bin": {
+    "pruvon": "./bin/pruvon.js"
+  },
   "scripts": {
     "test": "node --test test/engine.test.js test/markdown.test.js"
   },

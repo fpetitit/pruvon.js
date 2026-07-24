@@ -1,4 +1,4 @@
-exports.sum = values => {
+export const sum = (values) => {
     let sum = 0;
     values.forEach(element =>
         sum += element
@@ -6,6 +6,6 @@ exports.sum = values => {
     return sum;
 };
 
-exports.sub = (a, b) => {
+export const sub = (a, b) => {
     return a - b;
 };
