@@ -7,6 +7,10 @@
   "bin": {
     "pruvon": "./bin/pruvon.js"
   },
+  "files": [
+    "bin",
+    "src"
+  ],
   "scripts": {
     "test": "node --test test/engine.test.js test/markdown.test.js"
   },
