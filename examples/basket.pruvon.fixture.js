@@ -1,4 +1,4 @@
-import * as basket from '../src/basket.js';
+import * as basket from './basket.js';
 
 export function sum(args) {
   return basket.sum(args.map(Number));
