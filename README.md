@@ -12,8 +12,10 @@ For a full walkthrough with visuals, see [the tutorial](docs/tutorial.html).
 npm install pruvon
 ```
 
-See [pruvon-example](https://github.com/fpetitit/pruvon-example) for a minimal standard Node.js
-project using pruvon as a regular npm dependency.
+See [`demos/standard-project`](demos/standard-project) for a minimal plain Node.js project, and
+[`demos/nestjs`](demos/nestjs) for a NestJS project, both using pruvon as a regular npm dependency
+installed from the public registry (as opposed to [`examples/`](examples/), which exercises this
+repo's own engine source directly).
 
 ## Writing specs
 
