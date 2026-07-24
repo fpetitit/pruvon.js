@@ -4,13 +4,13 @@
   "description": "A simple behavior driven development test tool",
   "type": "module",
   "scripts": {
-    "test": "node --test test/engine.test.js"
+    "test": "node --test test/engine.test.js test/markdown.test.js"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
-    "glob": "^13.0.6"
+    "glob": "^13.0.6",
+    "markdown-it": "^14.3.0"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=18.0.0"
   },
