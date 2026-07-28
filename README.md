@@ -94,6 +94,22 @@ Exit code: `0` if every discovered spec's every row passed (or no specs were fou
 failed, any fixture function threw, or any spec had no paired fixture — making it usable as a CI
 gate.
 
+## Reports
+
+Every run writes a `pruvon-report.html` in `<cwd>`, listing every discovered spec with its pass/fail
+count and a link to that spec's own `*.pruvon.result.html` — one file to open instead of one per
+spec. Like the per-spec result files, it's generated output (`.gitignore`d), regenerated on every run.
+
+## Continuous Integration
+
+Running under GitHub Actions (i.e. when `$GITHUB_STEP_SUMMARY` is set) also appends a pass/fail table
+to the run's [Job Summary](https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary),
+visible directly on the run's page — no flag needed. GitHub sanitizes raw HTML/inline styles in Job
+Summaries, so this is a plain Markdown table (✅/❌ per spec) rather than the colored `pruvon-report.html`;
+upload `pruvon-report.html` and the `*.pruvon.result.html` files as a build artifact (e.g. via
+[`actions/upload-artifact`](https://github.com/actions/upload-artifact)) alongside it to keep the full
+colored report browsable from the run too.
+
 ## Contributors
 
 https://twitter.com/@francoispetitit

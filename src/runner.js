@@ -15,7 +15,7 @@ export async function runSpecs(cwd, pattern) {
 
   for (const entry of entries) {
     if (entry.fixtureError) {
-      specs.push({ specPath: entry.specPath, error: entry.fixtureError, results: [] });
+      specs.push({ specPath: entry.specPath, error: entry.fixtureError, results: [], passedCount: 0, failedCount: 0 });
       continue;
     }
 
@@ -27,7 +27,10 @@ export async function runSpecs(cwd, pattern) {
     const resultPath = resultPathFor(entry.specPath);
     fs.writeFileSync(resultPath, resultHtml);
 
-    specs.push({ specPath: entry.specPath, resultPath, results });
+    const passedCount = results.filter((r) => r.passed).length;
+    const failedCount = results.length - passedCount;
+
+    specs.push({ specPath: entry.specPath, resultPath, results, passedCount, failedCount });
   }
 
   return specs;
