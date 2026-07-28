@@ -1,11 +1,18 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { runSpecs } from './runner.js';
+import { renderReport } from './render-report.js';
+import { renderGithubSummary } from './render-github-summary.js';
 
 const USAGE = `Usage: pruvon [--cwd <dir>] [--pattern <glob>]
 
   --cwd <dir>       Directory to discover specs from (default: current directory)
   --pattern <glob>  Glob pattern for spec files (default: **/*.pruvon.{html,md})
   --help            Show this help message
+
+Always writes an aggregate pruvon-report.html in <cwd>, linking every spec's
+own result file. Under GitHub Actions (when $GITHUB_STEP_SUMMARY is set),
+also appends a pass/fail table to the run's Job Summary.
 `;
 
 function parseArgs(argv) {
@@ -45,15 +52,21 @@ export async function run(argv) {
       continue;
     }
 
-    const passed = spec.results.filter((r) => r.passed).length;
-    const failed = spec.results.length - passed;
-    totalPassed += passed;
-    totalFailed += failed;
+    totalPassed += spec.passedCount;
+    totalFailed += spec.failedCount;
 
-    console.log(`${failed === 0 ? '✔' : '✗'} ${relPath}: ${passed} passed, ${failed} failed`);
+    console.log(`${spec.failedCount === 0 ? '✔' : '✗'} ${relPath}: ${spec.passedCount} passed, ${spec.failedCount} failed`);
   }
 
   console.log(`\n${totalPassed} passed, ${totalFailed} failed`);
+
+  const reportPath = path.join(opts.cwd, 'pruvon-report.html');
+  fs.writeFileSync(reportPath, renderReport(opts.cwd, specs));
+  console.log(`Report: ${path.relative(process.cwd(), reportPath)}`);
+
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, renderGithubSummary(opts.cwd, specs, totalPassed, totalFailed));
+  }
 
   return totalFailed > 0 || hasFixtureError ? 1 : 0;
 }

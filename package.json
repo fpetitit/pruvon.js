@@ -1,6 +1,6 @@
 {
   "name": "pruvon",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A simple behavior driven development test tool",
   "type": "module",
   "main": "src/runner.js",
@@ -12,7 +12,7 @@
     "src"
   ],
   "scripts": {
-    "test": "node --test test/engine.test.js test/markdown.test.js"
+    "test": "node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js"
   },
   "dependencies": {
     "cheerio": "^1.2.0",

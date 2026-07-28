@@ -1,5 +1,6 @@
 # Generated pruvon reports
 *.pruvon.result.html
+pruvon-report.html
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Node template

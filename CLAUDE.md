@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm test` — runs `node --test test/engine.test.js test/markdown.test.js` (Node's built-in test runner, no external framework).
+- `npm test` — runs `node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js` (Node's built-in test runner, no external framework).
 - `node bin/pruvon.js --cwd <dir>` — runs the CLI against a directory of specs (e.g. `node bin/pruvon.js --cwd test` runs the demo + the engine's own fixture cases). `--pattern <glob>` overrides the default `**/*.pruvon.{html,md}`. Exit code `0` = all rows passed (or no specs found), `1` = any failure/error.
 - No build step, no linter.
 
@@ -26,10 +26,19 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   compares the result to the last cell, and colors that cell green/red in place. Each row is wrapped in
   its own try/catch, so a throwing or missing fixture function fails only that row.
 - **`src/runner.js`** — orchestrates discovery → markdown render (if needed) → `runTables` → writes
-  `<stem>.pruvon.result.html` next to the spec. These result files are generated output
-  (`.gitignore`d) — never treat them as source of truth or hand-edit them.
+  `<stem>.pruvon.result.html` next to the spec, plus a `passedCount`/`failedCount` per spec (used by
+  both `cli.js`'s console output and the two report renderers below, so the pass/fail tally is computed
+  exactly once). These result files are generated output (`.gitignore`d) — never treat them as source
+  of truth or hand-edit them.
+- **`src/render-report.js`** — pure function building the aggregate `pruvon-report.html` (one row per
+  spec, linking its `*.pruvon.result.html`, green/red like the per-spec reports).
+- **`src/render-github-summary.js`** — pure function building the Markdown table `cli.js` appends to
+  `$GITHUB_STEP_SUMMARY` under GitHub Actions. Separate from `render-report.js` because GitHub
+  sanitizes raw HTML/inline styles out of Job Summaries — this can't reuse the colored HTML table, so
+  it renders a ✅/❌ column instead.
 - **`src/cli.js`** / **`bin/pruvon.js`** — argv parsing (`--cwd`, `--pattern`, `--help`), console
-  summary, and the exit-code contract described above.
+  summary, writing `pruvon-report.html` and (when `$GITHUB_STEP_SUMMARY` is set) the Job Summary, and
+  the exit-code contract described above.
 - **Fixture/spec pairing convention**: `<name>.pruvon.html` and/or `<name>.pruvon.md` share the same
   fixture `<name>.pruvon.fixture.js` (see `examples/basket/basket.pruvon.*` for a spec pairing both
   formats to one fixture). Fixtures typically adapt string cell values into typed args and call into a
