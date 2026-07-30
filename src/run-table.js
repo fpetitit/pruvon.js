@@ -15,6 +15,8 @@ export async function runTables($, fixtures) {
 
       let actual, passed, errorMessage;
       try {
+        await fixtures.beforeExample?.({ fnName, args });
+
         const fn = fixtures[fnName];
         if (typeof fn !== 'function') {
           throw new Error(`fixture function "${fnName}" not found`);
@@ -24,6 +26,13 @@ export async function runTables($, fixtures) {
       } catch (err) {
         passed = false;
         errorMessage = err.message;
+      } finally {
+        try {
+          await fixtures.afterExample?.({ fnName, args, actual, passed, error: errorMessage });
+        } catch (err) {
+          passed = false;
+          errorMessage = err.message;
+        }
       }
 
       if (passed) {

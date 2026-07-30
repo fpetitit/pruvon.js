@@ -26,6 +26,13 @@ export async function runSpecs(cwd, pattern) {
         continue;
       }
 
+      try {
+        await entry.fixtures.beforeSpecification?.();
+      } catch (err) {
+        specs.push({ specPath: entry.specPath, error: err, results: [], passedCount: 0, failedCount: 0 });
+        continue;
+      }
+
       const source = fs.readFileSync(entry.specPath, 'utf8');
       const html = entry.format === 'markdown' ? renderMarkdownSpec(source) : source;
       const $ = cheerio.load(html);
@@ -36,6 +43,13 @@ export async function runSpecs(cwd, pattern) {
 
       const passedCount = results.filter((r) => r.passed).length;
       const failedCount = results.length - passedCount;
+
+      try {
+        await entry.fixtures.afterSpecification?.();
+      } catch (err) {
+        specs.push({ specPath: entry.specPath, error: err, results: [], passedCount: 0, failedCount: 0 });
+        continue;
+      }
 
       specs.push({ specPath: entry.specPath, resultPath, results, passedCount, failedCount });
     }

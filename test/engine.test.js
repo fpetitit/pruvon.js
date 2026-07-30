@@ -71,6 +71,30 @@ test('discover pairs a spec with its fixture and loads it', async () => {
   assert.equal(typeof entry.fixtures.add, 'function');
 });
 
+test('runTables calls beforeExample/afterExample once per row, in order, with row context', async () => {
+  const $ = cheerio.load(loadHtml('before-after-example.pruvon.html'));
+  const fixtures = await loadFixture('before-after-example.pruvon.fixture.js');
+  await runTables($, fixtures);
+
+  assert.equal(fixtures.calls.length, 4);
+  assert.deepEqual(
+    fixtures.calls.map((c) => c.hook),
+    ['before', 'after', 'before', 'after']
+  );
+  assert.equal(fixtures.calls[0].fnName, 'add');
+  assert.deepEqual(fixtures.calls[0].args, ['1', '2']);
+  assert.equal(fixtures.calls[1].passed, true);
+});
+
+test('runTables fails the row when beforeExample throws', async () => {
+  const $ = cheerio.load(loadHtml('example-hook-throws.pruvon.html'));
+  const fixtures = await loadFixture('example-hook-throws.pruvon.fixture.js');
+  const { results } = await runTables($, fixtures);
+
+  assert.equal(results[0].passed, false);
+  assert.equal(results[0].error, 'beforeExample kaboom');
+});
+
 test('discover reports a clear error when no fixture pairs with a spec', async () => {
   const entries = await discover(fixturesDir, 'missing-fixture.pruvon.html');
   const entry = entries[0];
