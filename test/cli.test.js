@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { run } from '../src/cli.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures');
+const binPath = path.join(__dirname, '..', 'bin', 'pruvon.js');
 
 function makeTmpProject(names) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pruvon-cli-test-'));
@@ -71,17 +73,17 @@ test('run() exits 1 and reports a clear message when a pruvon.suite.js beforeSui
   );
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
-  const originalLog = console.log;
-  const logs = [];
-  console.log = (...args) => logs.push(args.join(' '));
-  let exitCode;
+  let stdout, exitCode;
   try {
-    exitCode = await run(['--cwd', dir]);
-  } finally {
-    console.log = originalLog;
+    stdout = execFileSync('node', [binPath, '--cwd', dir], { encoding: 'utf8' });
+    exitCode = 0;
+  } catch (err) {
+    stdout = err.stdout;
+    exitCode = err.status;
   }
 
   assert.equal(exitCode, 1);
-  assert.ok(logs.some((line) => line.includes('suite hook failed') && line.includes('cannot reach test database')));
+  assert.match(stdout, /suite hook failed/);
+  assert.match(stdout, /cannot reach test database/);
   assert.equal(fs.existsSync(path.join(dir, 'pruvon-report.html')), false);
 });
