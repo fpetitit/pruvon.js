@@ -12,7 +12,7 @@
     "src"
   ],
   "scripts": {
-    "test": "node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js"
+    "test": "node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js test/runner.test.js"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
