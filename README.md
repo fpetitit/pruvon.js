@@ -92,6 +92,7 @@ Pruvon writes a `*.pruvon.result.html` report next to each spec, with every resu
 | **CI gate exit code** | `0` when every row of every spec passes, `1` on any failure, thrown fixture, or missing pairing — drop `npx pruvon` straight into a pipeline. |
 | **Framework-agnostic** | Ships as pure ESM; works from plain Node, TypeScript, or CommonJS apps. See the NestJS demo resolving a service via `NestFactory.createApplicationContext`. |
 | **Isolated rows** | Each row runs in its own try/catch — one throwing or unmatched fixture fails only that row, not the whole spec. |
+| **Lifecycle hooks** | Optional `beforeExample`/`afterExample`, `beforeSpecification`/`afterSpecification`, and `beforeSuite`/`afterSuite` — reset state between examples, share a resource across one spec, or set up/tear down once for the whole run. |
 | **Zero build** | No transpile step, no linter config, no plugins. |
 
 ## How it works
@@ -151,6 +152,78 @@ export function sum(args) {
 }
 ```
 
+## Lifecycle hooks
+
+A fixture (or, for the suite scope, a dedicated file) can export optional hook functions that run
+around your examples. All of them may be `async`; none are required — an undeclared hook is simply
+skipped.
+
+| Hook | Runs | Declared in | Example |
+|---|---|---|---|
+| `beforeExample` / `afterExample` | Once per table row | the spec's fixture | [`examples/before-after-example/`](examples/before-after-example/) |
+| `beforeSpecification` / `afterSpecification` | Once per spec file, around *all* of its tables | the spec's fixture | [`examples/before-after-specification/`](examples/before-after-specification/) |
+| `beforeSuite` / `afterSuite` | Once for the whole run, around every spec | `pruvon.suite.js` at the `--cwd` root | [`examples/before-after-suite/`](examples/before-after-suite/) |
+
+### Per-example: `beforeExample` / `afterExample`
+
+Called before/after each row's fixture function, useful for resetting state so examples don't leak
+into one another. `afterExample` always runs, even if the row's function throws.
+
+```js
+export function beforeExample({ fnName, args }) {
+  cache.clear();
+}
+
+export function afterExample({ fnName, args, actual, passed, error }) {
+  // e.g. tear down a per-row stub
+}
+
+export function record(args) { /* ... */ }
+```
+
+If either hook throws, only that row fails — the same isolation as a throwing fixture function.
+
+### Per-specification: `beforeSpecification` / `afterSpecification`
+
+Called once for a whole spec file, before its first table runs and after its last one finishes —
+handy for a resource that's expensive to set up but safe to share across every table in that file
+(e.g. seeding an in-memory catalog once instead of per table).
+
+```js
+export function beforeSpecification() {
+  db.open();
+  db.seed(fixtures);
+}
+
+export function afterSpecification() {
+  db.close();
+}
+```
+
+If either hook throws, the whole spec is reported as errored (like a missing fixture pairing), and
+none of its rows are counted as passed or failed.
+
+### Per-suite: `beforeSuite` / `afterSuite`
+
+A run's "suite" spans every spec `pruvon` discovers — potentially many independent fixture files — so
+this hook isn't declared on a fixture. Instead, drop an optional `pruvon.suite.js` at the directory
+passed as `--cwd`:
+
+```js
+// pruvon.suite.js
+export function beforeSuite() {
+  server.start();
+}
+
+export function afterSuite() {
+  server.stop();
+}
+```
+
+It's loaded once, before any spec is discovered. If `beforeSuite` throws, no spec runs at all; `pruvon`
+prints `✗ suite hook failed: <message>` and exits `1` without writing a report. `afterSuite` always
+runs after every spec finishes, even if one of them failed.
+
 ## CLI
 
 ```bash
@@ -171,8 +244,9 @@ any row failed, any fixture threw, or any spec had no paired fixture — making 
 - **[Tutorial](docs/tutorial.html)** — a full illustrated walkthrough of the discuss → document →
   instrument → code loop.
 - **[`examples/`](examples/)** — `basket/` (arithmetic, one fixture paired to both an HTML *and* a
-  Markdown spec) and `name-splitter/` (the Concordion getting-started example), running against this
-  repo's engine source directly.
+  Markdown spec), `name-splitter/` (the Concordion getting-started example), and the three
+  [lifecycle hooks](#lifecycle-hooks) demos (`before-after-example/`, `before-after-specification/`,
+  `before-after-suite/`) — all running against this repo's engine source directly.
 - **[`demos/standard-project`](demos/standard-project)** — a minimal plain-ESM Node project that
   installs `pruvon` from npm like a real consumer would.
 - **[`demos/nestjs`](demos/nestjs)** — a CommonJS NestJS app whose fixture resolves a service through
