@@ -1,0 +1,34 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../pruvon.css" type="text/css" media="screen">
+</head>
+<body>
+<h1>Visit Counter (BeforeExample/AfterExample)</h1>
+
+<p>
+    <code>beforeExample</code> resets the counter before every row, so each
+    example below is isolated from the ones before it: every name is "the
+    first visit" even though <code>record</code> is called several times in
+    a row.
+</p>
+
+<table data-execute="record">
+    <tr>
+        <th>Name</th>
+        <th>Visit count</th>
+    </tr>
+    <tr>
+        <td>Alice</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>Bob</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>Carol</td>
+        <td>1</td>
+    </tr>
+</table>
+</body>
+</html>
