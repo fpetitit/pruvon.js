@@ -326,6 +326,7 @@
     <li><a href="#instrumenting"><span class="step-num">3</span>Instrumenting</a></li>
     <li><a href="#coding"><span class="step-num">4</span>Coding</a></li>
     <li><a href="#running">Running it</a></li>
+    <li><a href="#hooks">Lifecycle hooks</a></li>
     <li><a href="#advanced">Advanced</a></li>
   </ol>
 </nav>
@@ -524,6 +525,90 @@ export function lastName(args) {
     <code>1</code> — any row failed, any fixture function threw, or a spec had no paired fixture —
     making <code>pruvon</code> usable directly as a CI gate (see <code>.github/workflows/ci.yml</code>
     in this repo).
+  </div>
+</section>
+
+<section id="hooks">
+  <h2>Lifecycle hooks</h2>
+  <p>
+    Fixtures — and, for the suite scope, a dedicated file — can export optional hook functions that
+    run around your examples. Every hook may be <code>async</code>; leave one out and it's simply
+    skipped.
+  </p>
+
+  <h3>Per example — <code>beforeExample</code> / <code>afterExample</code></h3>
+  <p>
+    Called before/after <em>each row's</em> fixture function — useful for resetting shared state so
+    examples don't leak into one another. <code>afterExample</code> always runs, even when the row's
+    function throws.
+  </p>
+  <div class="code-block">
+    <span class="code-label">visit-counter.pruvon.fixture.js</span>
+    <pre><code>export function beforeExample() {
+  resetVisits();
+}
+
+export function record(args) {
+  return recordVisit(args[0]);
+}</code></pre>
+  </div>
+  <div class="callout tip">
+    <div class="callout-title">Isolation, not just logging</div>
+    In <a href="../examples/before-after-example/"><code>examples/before-after-example/</code></a>,
+    <code>beforeExample</code> resets a visit counter before every row, so three calls to
+    <code>record</code> in a row each report "first visit" — proving the examples run isolated from
+    one another, not accumulating state.
+  </div>
+
+  <h3>Per specification — <code>beforeSpecification</code> / <code>afterSpecification</code></h3>
+  <p>
+    Called once for a whole spec file — before its first table and after its last one — for a resource
+    that's too expensive to set up per row but safe to share across every table in that file.
+  </p>
+  <div class="code-block">
+    <span class="code-label">product-catalog.pruvon.fixture.js</span>
+    <pre><code>export function beforeSpecification() {
+  openCatalog();
+  seedProduct('Apple', 1);
+}
+
+export function afterSpecification() {
+  closeCatalog();
+}</code></pre>
+  </div>
+  <div class="callout">
+    <div class="callout-title">Failure marks the whole spec, not one row</div>
+    If either hook throws, the entire spec is reported as errored — the same shape as a missing
+    fixture pairing — rather than failing an individual row. See
+    <a href="../examples/before-after-specification/"><code>examples/before-after-specification/</code></a>,
+    where one <code>beforeSpecification</code> seeds a catalog shared by two separate tables.
+  </div>
+
+  <h3>Per suite — <code>beforeSuite</code> / <code>afterSuite</code></h3>
+  <p>
+    A run's "suite" spans every spec <code>pruvon</code> discovers — potentially many independent
+    fixture files — so this hook isn't declared on any one fixture. Instead, drop an optional
+    <code>pruvon.suite.js</code> at the directory passed as <code>--cwd</code>:
+  </p>
+  <div class="code-block">
+    <span class="code-label">pruvon.suite.js</span>
+    <pre><code>export function beforeSuite() {
+  server.start();
+}
+
+export function afterSuite() {
+  server.stop();
+}</code></pre>
+  </div>
+  <div class="callout">
+    <div class="callout-title">A file, not a fixture export</div>
+    Multiple fixtures each declaring <code>beforeSuite</code> would leave it ambiguous which one
+    "owns" the suite — so it lives in its own file instead, loaded once before any spec is discovered.
+    If <code>beforeSuite</code> throws, no spec runs at all: <code>pruvon</code> prints
+    <code>✗ suite hook failed: &lt;message&gt;</code> and exits <code>1</code> without writing a report.
+    <code>afterSuite</code> always runs after every spec finishes. See
+    <a href="../examples/before-after-suite/"><code>examples/before-after-suite/</code></a>, where two
+    specs with separate fixtures share one fake server started only once.
   </div>
 </section>
 
