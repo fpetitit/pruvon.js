@@ -32,7 +32,13 @@ export async function run(argv) {
     return 0;
   }
 
-  const specs = await runSpecs(opts.cwd, opts.pattern);
+  let specs;
+  try {
+    specs = await runSpecs(opts.cwd, opts.pattern);
+  } catch (err) {
+    console.log(`✗ suite hook failed: ${err.message}`);
+    return 1;
+  }
 
   if (specs.length === 0) {
     console.log('No pruvon specs found.');

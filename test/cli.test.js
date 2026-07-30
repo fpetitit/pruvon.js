@@ -62,3 +62,26 @@ test('run() does not touch $GITHUB_STEP_SUMMARY when it is unset', async (t) => 
 
   await assert.doesNotReject(run(['--cwd', dir]));
 });
+
+test('run() exits 1 and reports a clear message when a pruvon.suite.js beforeSuite hook throws', async (t) => {
+  const dir = makeTmpProject(['pass.pruvon.html', 'pass.pruvon.fixture.js']);
+  fs.writeFileSync(
+    path.join(dir, 'pruvon.suite.js'),
+    `export function beforeSuite() { throw new Error('cannot reach test database'); }`
+  );
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  const originalLog = console.log;
+  const logs = [];
+  console.log = (...args) => logs.push(args.join(' '));
+  let exitCode;
+  try {
+    exitCode = await run(['--cwd', dir]);
+  } finally {
+    console.log = originalLog;
+  }
+
+  assert.equal(exitCode, 1);
+  assert.ok(logs.some((line) => line.includes('suite hook failed') && line.includes('cannot reach test database')));
+  assert.equal(fs.existsSync(path.join(dir, 'pruvon-report.html')), false);
+});

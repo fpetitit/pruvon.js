@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm test` — runs `node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js` (Node's built-in test runner, no external framework).
+- `npm test` — runs `node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js test/runner.test.js` (Node's built-in test runner, no external framework).
 - `node bin/pruvon.js --cwd <dir>` — runs the CLI against a directory of specs (e.g. `node bin/pruvon.js --cwd test` runs the demo + the engine's own fixture cases). `--pattern <glob>` overrides the default `**/*.pruvon.{html,md}`. Exit code `0` = all rows passed (or no specs found), `1` = any failure/error.
 - No build step, no linter.
 
@@ -25,11 +25,20 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   `fixtures[fnName](args)` (args = all `<td>` text except the last, `await`ed so fixtures may be async),
   compares the result to the last cell, and colors that cell green/red in place. Each row is wrapped in
   its own try/catch, so a throwing or missing fixture function fails only that row.
+- **`src/suite-hooks.js`** — loads an optional `<cwd>/pruvon.suite.js`, dynamic-`import()`ed once per
+  run (empty object if the file doesn't exist — silent, unlike `discover.js`'s per-spec fixture error,
+  since a suite hooks file is opt-in). This is a dedicated file rather than a convention on individual
+  fixtures because a run's "suite" spans every fixture module `discover.js` loads — no single fixture
+  owns that scope, so `beforeSuite`/`afterSuite` need a home outside all of them.
 - **`src/runner.js`** — orchestrates discovery → markdown render (if needed) → `runTables` → writes
   `<stem>.pruvon.result.html` next to the spec, plus a `passedCount`/`failedCount` per spec (used by
   both `cli.js`'s console output and the two report renderers below, so the pass/fail tally is computed
   exactly once). These result files are generated output (`.gitignore`d) — never treat them as source
-  of truth or hand-edit them.
+  of truth or hand-edit them. Wraps the whole run with `suiteHooks.beforeSuite`/`afterSuite` from
+  `suite-hooks.js`: `afterSuite` runs in a `finally` (so it fires even if a spec's own processing throws
+  unexpectedly), but if `beforeSuite` itself throws, `runSpecs` rejects before discovering/running any
+  spec. `cli.js` catches that rejection, prints `✗ suite hook failed: <message>`, and exits `1` without
+  writing a report — see `examples/before-after-suite/`.
 - **`src/render-report.js`** — pure function building the aggregate `pruvon-report.html` (one row per
   spec, linking its `*.pruvon.result.html`, green/red like the per-spec reports).
 - **`src/render-github-summary.js`** — pure function building the Markdown table `cli.js` appends to
@@ -49,12 +58,16 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
 
 - **`src/`** holds *only* the engine — no example/demo code lives here.
 - **`examples/`** holds the illustrative, user-facing demos, one subdirectory per example
-  (`examples/basket/`, `examples/name-splitter/`), each with its domain module + specs + fixture
-  co-located, plus a `pruvon.css` shared by both at the top of `examples/`. `name-splitter/` is the
-  running example embedded in `docs/tutorial.html`.
-- **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`) and the
-  deliberately pathological specs/fixtures under `test/fixtures/` (pass/fail/async/throwing/missing-fixture)
-  they run against — these are distinct from the `examples/` demos.
+  (`examples/basket/`, `examples/name-splitter/`, `examples/before-after-suite/`), each with its domain
+  module + specs + fixture co-located, plus a `pruvon.css` shared by all at the top of `examples/`.
+  `name-splitter/` is the running example embedded in `docs/tutorial.html`.
+  `before-after-suite/` demonstrates `beforeSuite`/`afterSuite`: two independent specs
+  (`health-check-a`/`health-check-b`, each with its own fixture) sharing one fake server started once
+  by the directory's `pruvon.suite.js`, not restarted per spec.
+- **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`,
+  `runner.test.js`) and the deliberately pathological specs/fixtures under `test/fixtures/`
+  (pass/fail/async/throwing/missing-fixture) they run against — these are distinct from the `examples/`
+  demos.
 - **`demos/`** holds standalone consumer projects, each with its own `package.json`/`package-lock.json`/
   `node_modules` (gitignored) that install `pruvon` for real from the public npm registry — unlike
   `examples/`, which imports the engine's local source directly. `demos/standard-project/` is plain

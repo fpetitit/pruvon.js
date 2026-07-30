@@ -1,0 +1,26 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../pruvon.css" type="text/css" media="screen">
+</head>
+<body>
+<h1>Health Check A (BeforeSuite/AfterSuite)</h1>
+
+<p>
+    This spec has its own fixture, but relies on the fake server started once
+    by <code>beforeSuite</code> in <a href="pruvon.suite.js">pruvon.suite.js</a>
+    — a hook declared outside any single fixture, shared by every spec in this
+    directory (see also <a href="health-check-b.pruvon.html">health-check-b</a>).
+</p>
+
+<table data-execute="ping">
+    <tr>
+        <th>Call</th>
+        <th>Response</th>
+    </tr>
+    <tr>
+        <td>1</td>
+        <td>pong</td>
+    </tr>
+</table>
+</body>
+</html>
