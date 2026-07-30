@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm test` — runs `node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js` (Node's built-in test runner, no external framework).
+- `npm test` — runs `node --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js test/runner.test.js` (Node's built-in test runner, no external framework).
 - `node bin/pruvon.js --cwd <dir>` — runs the CLI against a directory of specs (e.g. `node bin/pruvon.js --cwd test` runs the demo + the engine's own fixture cases). `--pattern <glob>` overrides the default `**/*.pruvon.{html,md}`. Exit code `0` = all rows passed (or no specs found), `1` = any failure/error.
 - No build step, no linter.
 
@@ -29,7 +29,10 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   `<stem>.pruvon.result.html` next to the spec, plus a `passedCount`/`failedCount` per spec (used by
   both `cli.js`'s console output and the two report renderers below, so the pass/fail tally is computed
   exactly once). These result files are generated output (`.gitignore`d) — never treat them as source
-  of truth or hand-edit them.
+  of truth or hand-edit them. If the fixture exports `beforeSpecification`/`afterSpecification`, each is
+  `await`ed once per spec file — before/after *all* of that file's tables, not per table. Either one
+  throwing marks the whole spec as errored (same shape as a missing-fixture `fixtureError`: no
+  `resultPath`/`passedCount`, just an `error`) — see `examples/before-after-specification/`.
 - **`src/render-report.js`** — pure function building the aggregate `pruvon-report.html` (one row per
   spec, linking its `*.pruvon.result.html`, green/red like the per-spec reports).
 - **`src/render-github-summary.js`** — pure function building the Markdown table `cli.js` appends to
@@ -49,12 +52,15 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
 
 - **`src/`** holds *only* the engine — no example/demo code lives here.
 - **`examples/`** holds the illustrative, user-facing demos, one subdirectory per example
-  (`examples/basket/`, `examples/name-splitter/`), each with its domain module + specs + fixture
-  co-located, plus a `pruvon.css` shared by both at the top of `examples/`. `name-splitter/` is the
-  running example embedded in `docs/tutorial.html`.
-- **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`) and the
-  deliberately pathological specs/fixtures under `test/fixtures/` (pass/fail/async/throwing/missing-fixture)
-  they run against — these are distinct from the `examples/` demos.
+  (`examples/basket/`, `examples/name-splitter/`, `examples/before-after-specification/`), each with its
+  domain module + specs + fixture co-located, plus a `pruvon.css` shared by all at the top of
+  `examples/`. `name-splitter/` is the running example embedded in `docs/tutorial.html`.
+  `before-after-specification/` demonstrates the `beforeSpecification`/`afterSpecification` lifecycle
+  hooks (a fake catalog seeded once for a whole spec file, shared across its two tables).
+- **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`,
+  `runner.test.js`) and the deliberately pathological specs/fixtures under `test/fixtures/`
+  (pass/fail/async/throwing/missing-fixture) they run against — these are distinct from the `examples/`
+  demos.
 - **`demos/`** holds standalone consumer projects, each with its own `package.json`/`package-lock.json`/
   `node_modules` (gitignored) that install `pruvon` for real from the public npm registry — unlike
   `examples/`, which imports the engine's local source directly. `demos/standard-project/` is plain
