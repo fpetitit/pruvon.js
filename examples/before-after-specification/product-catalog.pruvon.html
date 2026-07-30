@@ -1,0 +1,43 @@
+<html>
+<head>
+    <link rel="stylesheet" href="../pruvon.css" type="text/css" media="screen">
+</head>
+<body>
+<h1>Product Catalog (BeforeSpecification/AfterSpecification)</h1>
+
+<p>
+    <code>beforeSpecification</code> opens the catalog and seeds it once for
+    this whole spec — not once per table — so both tables below can look up
+    prices without re-seeding. <code>afterSpecification</code> closes it once
+    everything has run.
+</p>
+
+<h2>Fruit &amp; bakery</h2>
+<table data-execute="priceOf">
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+    </tr>
+    <tr>
+        <td>Apple</td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>Bread</td>
+        <td>3</td>
+    </tr>
+</table>
+
+<h2>Dairy</h2>
+<table data-execute="priceOf">
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+    </tr>
+    <tr>
+        <td>Cheese</td>
+        <td>5</td>
+    </tr>
+</table>
+</body>
+</html>
