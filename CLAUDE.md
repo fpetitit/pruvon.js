@@ -24,7 +24,11 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   Given a cheerio `$` and a fixtures object, walks every `<table data-execute="fnName">`'s rows, calls
   `fixtures[fnName](args)` (args = all `<td>` text except the last, `await`ed so fixtures may be async),
   compares the result to the last cell, and colors that cell green/red in place. Each row is wrapped in
-  its own try/catch, so a throwing or missing fixture function fails only that row.
+  its own try/catch, so a throwing or missing fixture function fails only that row. If the fixture
+  exports `beforeExample`/`afterExample`, each is `await`ed once per row (`afterExample` in a `finally`,
+  so it still runs when the row's fixture function throws), receiving `{ fnName, args }` (`afterExample`
+  also gets `actual`, `passed`, `error`). Either hook throwing fails just that row, the same as a
+  throwing fixture function — see `examples/before-after-example/`.
 - **`src/runner.js`** — orchestrates discovery → markdown render (if needed) → `runTables` → writes
   `<stem>.pruvon.result.html` next to the spec, plus a `passedCount`/`failedCount` per spec (used by
   both `cli.js`'s console output and the two report renderers below, so the pass/fail tally is computed
@@ -52,15 +56,17 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
 
 - **`src/`** holds *only* the engine — no example/demo code lives here.
 - **`examples/`** holds the illustrative, user-facing demos, one subdirectory per example
-  (`examples/basket/`, `examples/name-splitter/`, `examples/before-after-specification/`), each with its
-  domain module + specs + fixture co-located, plus a `pruvon.css` shared by all at the top of
-  `examples/`. `name-splitter/` is the running example embedded in `docs/tutorial.html`.
-  `before-after-specification/` demonstrates the `beforeSpecification`/`afterSpecification` lifecycle
-  hooks (a fake catalog seeded once for a whole spec file, shared across its two tables).
+  (`examples/basket/`, `examples/name-splitter/`, `examples/before-after-example/`,
+  `examples/before-after-specification/`), each with its domain module + specs + fixture co-located,
+  plus a `pruvon.css` shared by all at the top of `examples/`. `name-splitter/` is the running example
+  embedded in `docs/tutorial.html`. `before-after-example/` demonstrates the `beforeExample`/
+  `afterExample` lifecycle hooks (a counter reset before every row, proving each example runs isolated
+  from the ones before it). `before-after-specification/` demonstrates `beforeSpecification`/
+  `afterSpecification` (a fake catalog seeded once for a whole spec file, shared across its two tables).
 - **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`,
   `runner.test.js`) and the deliberately pathological specs/fixtures under `test/fixtures/`
-  (pass/fail/async/throwing/missing-fixture) they run against — these are distinct from the `examples/`
-  demos.
+  (pass/fail/async/throwing/missing-fixture/before-after-example/example-hook-throws) they run against
+  — these are distinct from the `examples/` demos.
 - **`demos/`** holds standalone consumer projects, each with its own `package.json`/`package-lock.json`/
   `node_modules` (gitignored) that install `pruvon` for real from the public npm registry — unlike
   `examples/`, which imports the engine's local source directly. `demos/standard-project/` is plain
