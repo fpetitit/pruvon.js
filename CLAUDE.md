@@ -29,6 +29,11 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   so it still runs when the row's fixture function throws), receiving `{ fnName, args }` (`afterExample`
   also gets `actual`, `passed`, `error`). Either hook throwing fails just that row, the same as a
   throwing fixture function — see `examples/before-after-example/`.
+- **`src/suite-hooks.js`** — loads an optional `<cwd>/pruvon.suite.js`, dynamic-`import()`ed once per
+  run (empty object if the file doesn't exist — silent, unlike `discover.js`'s per-spec fixture error,
+  since a suite hooks file is opt-in). This is a dedicated file rather than a convention on individual
+  fixtures because a run's "suite" spans every fixture module `discover.js` loads — no single fixture
+  owns that scope, so `beforeSuite`/`afterSuite` need a home outside all of them.
 - **`src/runner.js`** — orchestrates discovery → markdown render (if needed) → `runTables` → writes
   `<stem>.pruvon.result.html` next to the spec, plus a `passedCount`/`failedCount` per spec (used by
   both `cli.js`'s console output and the two report renderers below, so the pass/fail tally is computed
@@ -36,7 +41,12 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   of truth or hand-edit them. If the fixture exports `beforeSpecification`/`afterSpecification`, each is
   `await`ed once per spec file — before/after *all* of that file's tables, not per table. Either one
   throwing marks the whole spec as errored (same shape as a missing-fixture `fixtureError`: no
-  `resultPath`/`passedCount`, just an `error`) — see `examples/before-after-specification/`.
+  `resultPath`/`passedCount`, just an `error`) — see `examples/before-after-specification/`. Wraps the
+  whole run with `suiteHooks.beforeSuite`/`afterSuite` from `suite-hooks.js`: `afterSuite` runs in a
+  `finally` (so it fires even if a spec's own processing throws unexpectedly), but if `beforeSuite`
+  itself throws, `runSpecs` rejects before discovering/running any spec. `cli.js` catches that
+  rejection, prints `✗ suite hook failed: <message>`, and exits `1` without writing a report — see
+  `examples/before-after-suite/`.
 - **`src/render-report.js`** — pure function building the aggregate `pruvon-report.html` (one row per
   spec, linking its `*.pruvon.result.html`, green/red like the per-spec reports).
 - **`src/render-github-summary.js`** — pure function building the Markdown table `cli.js` appends to
@@ -57,12 +67,15 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
 - **`src/`** holds *only* the engine — no example/demo code lives here.
 - **`examples/`** holds the illustrative, user-facing demos, one subdirectory per example
   (`examples/basket/`, `examples/name-splitter/`, `examples/before-after-example/`,
-  `examples/before-after-specification/`), each with its domain module + specs + fixture co-located,
-  plus a `pruvon.css` shared by all at the top of `examples/`. `name-splitter/` is the running example
-  embedded in `docs/tutorial.html`. `before-after-example/` demonstrates the `beforeExample`/
-  `afterExample` lifecycle hooks (a counter reset before every row, proving each example runs isolated
-  from the ones before it). `before-after-specification/` demonstrates `beforeSpecification`/
-  `afterSpecification` (a fake catalog seeded once for a whole spec file, shared across its two tables).
+  `examples/before-after-specification/`, `examples/before-after-suite/`), each with its domain module
+  + specs + fixture co-located, plus a `pruvon.css` shared by all at the top of `examples/`.
+  `name-splitter/` is the running example embedded in `docs/tutorial.html`. `before-after-example/`
+  demonstrates the `beforeExample`/`afterExample` lifecycle hooks (a counter reset before every row,
+  proving each example runs isolated from the ones before it). `before-after-specification/`
+  demonstrates `beforeSpecification`/`afterSpecification` (a fake catalog seeded once for a whole spec
+  file, shared across its two tables). `before-after-suite/` demonstrates `beforeSuite`/`afterSuite`:
+  two independent specs (`health-check-a`/`health-check-b`, each with its own fixture) sharing one fake
+  server started once by the directory's `pruvon.suite.js`, not restarted per spec.
 - **`test/`** holds the engine's own `node:test` suites (`engine.test.js`, `markdown.test.js`,
   `runner.test.js`) and the deliberately pathological specs/fixtures under `test/fixtures/`
   (pass/fail/async/throwing/missing-fixture/before-after-example/example-hook-throws) they run against

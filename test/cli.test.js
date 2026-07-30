@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { run } from '../src/cli.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixturesDir = path.join(__dirname, 'fixtures');
+const binPath = path.join(__dirname, '..', 'bin', 'pruvon.js');
 
 function makeTmpProject(names) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pruvon-cli-test-'));
@@ -61,4 +63,27 @@ test('run() does not touch $GITHUB_STEP_SUMMARY when it is unset', async (t) => 
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   await assert.doesNotReject(run(['--cwd', dir]));
+});
+
+test('run() exits 1 and reports a clear message when a pruvon.suite.js beforeSuite hook throws', async (t) => {
+  const dir = makeTmpProject(['pass.pruvon.html', 'pass.pruvon.fixture.js']);
+  fs.writeFileSync(
+    path.join(dir, 'pruvon.suite.js'),
+    `export function beforeSuite() { throw new Error('cannot reach test database'); }`
+  );
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  let stdout, exitCode;
+  try {
+    stdout = execFileSync('node', [binPath, '--cwd', dir], { encoding: 'utf8' });
+    exitCode = 0;
+  } catch (err) {
+    stdout = err.stdout;
+    exitCode = err.status;
+  }
+
+  assert.equal(exitCode, 1);
+  assert.match(stdout, /suite hook failed/);
+  assert.match(stdout, /cannot reach test database/);
+  assert.equal(fs.existsSync(path.join(dir, 'pruvon-report.html')), false);
 });
