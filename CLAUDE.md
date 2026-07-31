@@ -53,9 +53,12 @@ tables, executed row-by-row against a paired "fixture" JS module, producing a vi
   `$GITHUB_STEP_SUMMARY` under GitHub Actions. Separate from `render-report.js` because GitHub
   sanitizes raw HTML/inline styles out of Job Summaries — this can't reuse the colored HTML table, so
   it renders a ✅/❌ column instead.
-- **`src/cli.js`** / **`bin/pruvon.js`** — argv parsing (`--cwd`, `--pattern`, `--help`), console
-  summary, writing `pruvon-report.html` and (when `$GITHUB_STEP_SUMMARY` is set) the Job Summary, and
-  the exit-code contract described above.
+- **`src/cli.js`** / **`bin/pruvon.js`** — argv parsing (`--cwd`, `--pattern`, `--track-results`,
+  `--help`), console summary, writing `pruvon-report.html` and (when `$GITHUB_STEP_SUMMARY` is set) the
+  Job Summary, and the exit-code contract described above. `--track-results` shells out to
+  `git check-ignore` on the report and every spec's result path and warns (doesn't fail the run) about
+  any that are still `.gitignore`d — it's a nudge for the opt-in "commit results to git" pattern (see
+  `examples/tracked-results/`), not something the CLI enforces or that touches `.gitignore` itself.
 - **Fixture/spec pairing convention**: `<name>.pruvon.html` and/or `<name>.pruvon.md` share the same
   fixture `<name>.pruvon.fixture.js` (see `examples/basket/basket.pruvon.*` for a spec pairing both
   formats to one fixture). Fixtures typically adapt string cell values into typed args and call into a

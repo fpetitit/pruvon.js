@@ -262,6 +262,17 @@ Every run writes a `pruvon-report.html` in `<cwd>`, listing every discovered spe
 count and a link to that spec's own `*.pruvon.result.html` — one file to open instead of one per
 spec. Like the per-spec result files, it's generated output (`.gitignore`d), regenerated on every run.
 
+## Tracking results in git
+
+By default, `*.pruvon.result.html` and `pruvon-report.html` are generated output — you're expected to
+`.gitignore` them and regenerate on every run. If you'd rather have the latest pass/fail state visible
+just by browsing the repo on `main` (no CI run needed), commit specific result files instead: remove
+them from your `.gitignore` (or add a `!` negation for just the ones you want tracked), then run
+`pruvon --track-results` to get a warning listing any result file that's still being caught by
+`.gitignore`. See [`examples/tracked-results/`](examples/tracked-results/) — its
+`tracked-results.pruvon.result.html` is committed, so the colored cells are visible straight from
+GitHub's file view.
+
 ## Continuous Integration
 
 Running under GitHub Actions (i.e. when `$GITHUB_STEP_SUMMARY` is set) also appends a pass/fail table

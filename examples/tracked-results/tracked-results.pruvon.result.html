@@ -1,0 +1,31 @@
+<html><head></head><body><h1>Tracking results in git</h1>
+<p>Unlike every other example in this repo, <code>tracked-results.pruvon.result.html</code> is <strong>not</strong>
+<code>.gitignore</code>d — it's committed to <code>main</code>. Open it on GitHub (rather than running <code>pruvon</code>
+locally) and the pass/fail cells are already colored green/red, straight from source.</p>
+<p>This is opt-in per file: the root <a href="../../.gitignore"><code>.gitignore</code></a> still ignores
+<code>*.pruvon.result.html</code> everywhere by default; a <code>!</code> negation for this one file re-includes
+it. Run <code>pruvon --track-results</code> to get a warning if a result file you expect to be
+tracked is still being caught by <code>.gitignore</code>.</p>
+<h2>Is even</h2>
+<table data-execute="isEven">
+<thead>
+<tr>
+<th>Number</th>
+<th>Is even</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td style="background-color: green;">true</td>
+</tr>
+<tr>
+<td>3</td>
+<td style="background-color: green;">false</td>
+</tr>
+<tr>
+<td>0</td>
+<td style="background-color: green;">true</td>
+</tr>
+</tbody>
+</table></body></html>
