@@ -2,6 +2,9 @@
 *.pruvon.result.html
 pruvon-report.html
 
+# Except: examples/tracked-results demonstrates committing results to git (see --track-results)
+!examples/tracked-results/tracked-results.pruvon.result.html
+
 # Created by .ignore support plugin (hsz.mobi)
 ### Node template
 # Logs
