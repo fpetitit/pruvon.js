@@ -18,4 +18,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
-      - run: npm test
+      - name: Run tests
+        # Node 22.x's default per-file process isolation hits a known node:test IPC bug
+        # (nodejs/node#64061, #56802: "Unable to deserialize cloned data due to invalid or
+        # unsupported version"), intermittent in CI. --experimental-test-isolation=none avoids
+        # the buggy channel by running all test files in-process; the flag doesn't exist on 20.x.
+        run: |
+          if [ "${{ matrix.node-version }}" = "22.x" ]; then
+            node --experimental-test-isolation=none --test test/engine.test.js test/markdown.test.js test/report.test.js test/cli.test.js test/runner.test.js
+          else
+            npm test
+          fi
